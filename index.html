@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FP-TeamLink99 — Team Development Simulator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'VT323', monospace;
+  background: #000;
+  color: #8ff28f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+#introLogo {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: #44ff88;
+  text-shadow: 0 0 10px #44ff88;
+  margin-bottom: 20px;
+  animation: logoGlow 2s ease-in-out infinite;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+#welcomeLogo {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: #44ff88;
+  text-shadow: 0 0 10px #44ff88;
+  margin-bottom: 30px;
+  animation: logoGlow 2s ease-in-out infinite;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px #44ff88;
+  }
+  50% {
+    text-shadow: 0 0 20px #44ff88, 0 0 30px #44ff88;
+  }
+}
+
+button, input {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #44ff88;
+  background: #061606;
+  color: #8ff28f;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#welcomeTerminal {
+  width: 700px;
+  max-width: 90%;
+  height: 450px;
+  background: #040406;
+  border: 2px solid #44ff88;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0,255,0,0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#welcomeHeader {
+  background: linear-gradient(180deg, #1a4d1a 0%, #0d260d 100%);
+  padding: 10px 15px;
+  border-bottom: 2px solid #44ff88;
+  font-size: 14px;
+  color: #8ff28f;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+#welcomeContent {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* Custom green scrollbar for welcome screen */
+#welcomeContent::-webkit-scrollbar {
+  width: 12px;
+}
+
+#welcomeContent::-webkit-scrollbar-track {
+  background: #040406;
+  border: 1px solid #44ff88;
+}
+
+#welcomeContent::-webkit-scrollbar-thumb {
+  background: #44ff88;
+  border: 1px solid #2d9960;
+}
+
+#welcomeContent::-webkit-scrollbar-thumb:hover {
+  background: #55ffaa;
+}
+
+/* Firefox scrollbar */
+#welcomeContent {
+  scrollbar-width: thin;
+  scrollbar-color: #44ff88 #040406;
+}
+
+#welcomeContent::after {
+  content: "_";
+  animation: blink 1s step-end infinite;
+}
+
+#terminal {
+  position: relative;
+  width: 960px;
+  max-width: 95%;
+  height: 600px;
+  display: flex;
+  flex-direction: row;
+  background: #040406;
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0,255,0,0.5);
+  overflow: hidden;
+  border: 3px solid #44ff88;
+}
+
+#terminal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(180deg, #1a4d1a 0%, #0d260d 100%);
+  border-bottom: 2px solid #44ff88;
+  z-index: 10;
+}
+
+#terminal::after {
+  content: 'FP-TEAMLINK99 v13 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ SYSTEM ACTIVE';
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  right: 12px;
+  font-size: 14px;
+  color: #44ff88;
+  z-index: 11;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  #terminal {
+    width: 100%;
+    height: 85vh;
+    max-width: 100%;
+  }
+  
+  #terminal::after {
+    content: 'FP-TEAMLINK99 v13 ━━ ACTIVE';
+    font-size: 12px;
+  }
+  
+  #stats {
+    width: 180px;
+    font-size: 14px;
+    padding: 12px;
+  }
+  
+  #consoleText {
+    font-size: 16px;
+  }
+  
+  #logo {
+    max-width: 80px;
+  }
+  
+  button, input {
+    font-size: 16px;
+  }
+  
+  .choice-btn {
+    font-size: 14px;
+  }
+}
+
+#stats {
+  width: 240px;
+  padding: 16px;
+  padding-top: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(0,0,0,0.5);
+  border-right: 2px solid #44ff88;
+}
+
+#stats::before {
+  content: '┌─ TEAM STATS ─┐';
+  position: absolute;
+  top: 40px;
+  left: 16px;
+  font-size: 14px;
+  color: #44ff88;
+  letter-spacing: 2px;
+}
+
+.stat-label {
+  font-size: 16px;
+  margin-bottom: 2px;
+  transition: all 0.3s ease;
+}
+
+.stat-label.flash {
+  animation: labelFlash 0.6s ease-in-out;
+}
+
+@keyframes labelFlash {
+  0%, 100% {
+    color: #8ff28f;
+    text-shadow: none;
+  }
+  50% {
+    color: #44ff88;
+    text-shadow: 0 0 10px #44ff88, 0 0 20px #44ff88;
+    transform: scale(1.1);
+  }
+}
+
+.bar {
+  width: 100%;
+  height: 20px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #1a4d1a;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #44ff88, #33dd77);
+  width: 20%;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(68, 255, 136, 0.5);
+}
+
+.bar-fill.low {
+  background: linear-gradient(90deg, #ff4444, #dd3333);
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}
+
+.bar-fill.medium {
+  background: linear-gradient(90deg, #ffbb44, #dd9933);
+  box-shadow: 0 0 10px rgba(255, 187, 68, 0.5);
+}
+
+.bar-fill.high {
+  background: linear-gradient(90deg, #44ff88, #55ffaa);
+  box-shadow: 0 0 10px rgba(68, 255, 136, 0.8);
+}
+
+.bar-fill.animate {
+  animation: statPulse 0.8s ease-in-out;
+}
+
+@keyframes statPulse {
+  0% {
+    transform: scaleY(1);
+    box-shadow: 0 0 10px rgba(68, 255, 136, 0.5);
+  }
+  15% {
+    transform: scaleY(1.5);
+    box-shadow: 0 0 25px rgba(68, 255, 136, 1), 0 0 40px rgba(68, 255, 136, 0.8);
+    filter: brightness(1.8);
+  }
+  30% {
+    transform: scaleY(0.8);
+    box-shadow: 0 0 15px rgba(68, 255, 136, 0.7);
+  }
+  45% {
+    transform: scaleY(1.3);
+    box-shadow: 0 0 30px rgba(68, 255, 136, 0.9), 0 0 50px rgba(68, 255, 136, 0.6);
+    filter: brightness(1.6);
+  }
+  60% {
+    transform: scaleY(0.9);
+    box-shadow: 0 0 20px rgba(68, 255, 136, 0.6);
+  }
+  75% {
+    transform: scaleY(1.1);
+    box-shadow: 0 0 15px rgba(68, 255, 136, 0.7);
+    filter: brightness(1.3);
+  }
+  100% {
+    transform: scaleY(1);
+    box-shadow: 0 0 10px rgba(68, 255, 136, 0.5);
+    filter: brightness(1);
+  }
+}
+
+#achievements {
+  margin-top: 16px;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #44ff88;
+  position: relative;
+}
+
+#achievements::before {
+  content: '└─ ACHIEVEMENTS ─┘';
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 12px;
+  color: #44ff88;
+  letter-spacing: 1px;
+}
+
+.achievement {
+  opacity: 0.3;
+  transition: opacity 0.5s;
+}
+
+.achievement.active {
+  opacity: 1;
+  color: #44ff88;
+}
+
+#console {
+  flex: 1;
+  background: rgba(0,0,0,0.9);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  font-size: 18px;
+}
+
+#logo {
+  position: absolute;
+  top: 8px;
+  right: 24px;
+  max-width: 120px;
+  height: auto;
+  z-index: 2;
+  object-fit: contain;
+}
+
+#consoleText {
+  flex: 1;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  margin-top: 32px;
+  overflow-y: auto;
+  min-height: 300px;
+}
+
+/* Custom green scrollbar */
+#consoleText::-webkit-scrollbar {
+  width: 12px;
+}
+
+#consoleText::-webkit-scrollbar-track {
+  background: #040406;
+  border: 1px solid #44ff88;
+}
+
+#consoleText::-webkit-scrollbar-thumb {
+  background: #44ff88;
+  border: 1px solid #2d9960;
+}
+
+#consoleText::-webkit-scrollbar-thumb:hover {
+  background: #55ffaa;
+}
+
+/* Firefox scrollbar */
+#consoleText {
+  scrollbar-width: thin;
+  scrollbar-color: #44ff88 #040406;
+}
+
+#choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.choice-btn {
+  text-align: left;
+}
+
+#loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  color: #44ff88;
+  font-size: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+  display: none;
+}
+
+/* CRT effect */
+#consoleText::after {
+  content: "_";
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Achievement flash effect */
+@keyframes flashAchievement {
+  0%, 100% {
+    color: #44ff88;
+    text-shadow: 0 0 4px #44ff88;
+  }
+  50% {
+    color: #ffffff;
+    text-shadow: 0 0 10px #ffffff;
+  }
+}
+
+.achievement.flash {
+  animation: flashAchievement 1s ease-in-out 2;
+}
+</style>
+</head>
+<body>
+
+<!-- Intro Start Screen -->
+<div id="introScreen" class="screen" style="display:flex;">
+  <pre id="introLogo">+---------------------------+
+|     FUNERAL PARTNERS      |
++---------------------------+</pre>
+  <h1>THE TUCKMAN MODEL</h1>
+  <button id="startBtn">Start</button>
+</div>
+
+<!-- Name Input Screen -->
+<div id="nameScreen" class="screen">
+  <h2>Enter your name:</h2>
+  <input type="text" id="playerName" placeholder="Your name...">
+  <button id="submitName" style="margin-top: 20px;">Enter</button>
+</div>
+
+<!-- Welcome Screen -->
+<div id="welcomeScreen" class="screen">
+  <div id="welcomeTerminal">
+    <div id="welcomeHeader">FP-TEAMLINK99 TERMINAL v13</div>
+    <div id="welcomeContent">
+      <div id="welcomeText"></div>
+    </div>
+  </div>
+  <button id="nextWelcome" style="margin-top: 20px;">Next</button>
+</div>
+
+<!-- Terminal / How to Use Screen -->
+<div id="terminalScreen" class="screen">
+  <div id="terminal">
+    <div id="stats">
+      <button id="muteBtn" style="width: 100%; margin-bottom: 12px; font-size: 14px;">SOUND ON</button>
+      <div class="stat-label">MORALE <span id="moraleVal">20</span></div>
+      <div class="bar"><div id="moraleBar" class="bar-fill" style="width:20%"></div></div>
+      <div class="stat-label">TRUST <span id="trustVal">20</span></div>
+      <div class="bar"><div id="trustBar" class="bar-fill" style="width:20%"></div></div>
+      <div class="stat-label">PRODUCTIVITY <span id="prodVal">20</span></div>
+      <div class="bar"><div id="prodBar" class="bar-fill" style="width:20%"></div></div>
+
+      <div id="achievements">
+        <div class="achievement forming-achievement" id="achievement1">Team Builder</div>
+        <div class="achievement forming-achievement" id="achievement2">Task Allocator</div>
+        <div class="achievement forming-achievement" id="achievement3">Goal Setter</div>
+        <div class="achievement forming-achievement" id="achievement4">Master Motivator</div>
+        <div class="achievement forming-achievement" id="achievement5">Efficiency Expert</div>
+        <div class="achievement storming-achievement" id="achievement6" style="display:none;">Conflict Resolver</div>
+        <div class="achievement storming-achievement" id="achievement7" style="display:none;">Unity Champion</div>
+        <div class="achievement storming-achievement" id="achievement8" style="display:none;">Role Clarifier</div>
+        <div class="achievement storming-achievement" id="achievement9" style="display:none;">Team Connector</div>
+        <div class="achievement storming-achievement" id="achievement10" style="display:none;">Coach & Mentor</div>
+        <div class="achievement storming-achievement" id="achievement11" style="display:none;">Consensus Builder</div>
+        <div class="achievement norming-achievement" id="achievement12" style="display:none;">Standard Setter</div>
+        <div class="achievement norming-achievement" id="achievement13" style="display:none;">Improvement Driver</div>
+        <div class="achievement norming-achievement" id="achievement14" style="display:none;">Consistency Champion</div>
+        <div class="achievement norming-achievement" id="achievement15" style="display:none;">Feedback Facilitator</div>
+        <div class="achievement performing-achievement" id="achievement16" style="display:none;">Leadership Enabler</div>
+        <div class="achievement performing-achievement" id="achievement17" style="display:none;">Team Observer</div>
+        <div class="achievement performing-achievement" id="achievement18" style="display:none;">Collaboration Catalyst</div>
+        <div class="achievement performing-achievement" id="achievement19" style="display:none;">Recognition Champion</div>
+      </div>
+    </div>
+
+    <div id="console">
+      <img id="logo" src="https://articulateusercontent.eu/rise/courses/FmJremTP6dzNWQMBnQB8oRkJkSltyOPA/hp7-j9a3fnyUOfEH.png" alt="Logo" onerror="this.style.display='none'">
+      <div id="consoleText"></div>
+      <div id="choices"></div>
+      <button id="nextBtn" style="margin-top:12px;">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="loadingOverlay">LOADING MODULE...</div>
+
+<script>
+// ===== CONFIGURATION CONSTANTS =====
+const TYPING_SPEED = {
+  SLOW: 20,
+  NORMAL: 12,
+  FAST: 8
+};
+
+const LOADING_DELAYS = {
+  INITIALIZE: 800,
+  READY: 1600,
+  COMPLETE: 2300
+};
+
+const STAT_LIMITS = {
+  MIN: 0,
+  MAX: 100
+};
+
+// ===== GAME STATE =====
+const gameState = {
+  playerName: '',
+  morale: 20,
+  trust: 20,
+  productivity: 20,
+  terminalStep: 0,
+  typingInProgress: false,
+  choiceHistory: [], // Track user choices for feedback
+  soundEnabled: true // Sound on by default
+};
+
+// ===== SOUND SYSTEM =====
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+/**
+ * Plays a retro button click sound
+ */
+function playButtonClick() {
+  if (!gameState.soundEnabled) return;
+  
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = 800;
+  oscillator.type = 'square';
+  
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.1);
+}
+
+/**
+ * Plays a dull thud sound for Next button
+ */
+function playNextClick() {
+  if (!gameState.soundEnabled) return;
+  
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = 200;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 0.15);
+}
+
+/**
+ * Plays achievement unlock chime
+ */
+function playAchievementChime() {
+  if (!gameState.soundEnabled) return;
+  
+  const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+  
+  notes.forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = freq;
+    oscillator.type = 'sine';
+    
+    const startTime = audioContext.currentTime + (index * 0.1);
+    gainNode.gain.setValueAtTime(0.2, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+    
+    oscillator.start(startTime);
+    oscillator.stop(startTime + 0.3);
+  });
+}
+
+/**
+ * Plays loading transition beeps
+ */
+function playLoadingBeeps() {
+  if (!gameState.soundEnabled) return;
+  
+  const beeps = [400, 600, 800];
+  
+  beeps.forEach((freq, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = freq;
+    oscillator.type = 'square';
+    
+    const startTime = audioContext.currentTime + (index * 0.15);
+    gainNode.gain.setValueAtTime(0.15, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.1);
+    
+    oscillator.start(startTime);
+    oscillator.stop(startTime + 0.1);
+  });
+}
+
+/**
+ * Plays retro intro music (from external file)
+ */
+let introAudio = null;
+
+function playIntroMusic() {
+  if (!gameState.soundEnabled) return;
+  
+  if (!introAudio) {
+    introAudio = new Audio('https://cdn.jsdelivr.net/gh/emilygurdld-svg/The-Tuckman-Model-sounds@main/8bit-sound-effect-268717.mp3');
+    introAudio.loop = true;
+    introAudio.volume = 0.3;
+  }
+  
+  introAudio.play().catch(err => {
+    console.log('Audio play prevented:', err);
+  });
+}
+
+/**
+ * Stops intro music
+ */
+function stopIntroMusic() {
+  if (introAudio) {
+    introAudio.pause();
+    introAudio.currentTime = 0;
+  }
+}
+
+/**
+ * Plays stage completion fanfare
+ */
+function playCompletionFanfare() {
+  if (!gameState.soundEnabled) return;
+  
+  // Victory fanfare melody
+  const fanfare = [
+    { note: 523.25, time: 0, duration: 0.15 },    // C5
+    { note: 659.25, time: 0.15, duration: 0.15 }, // E5
+    { note: 783.99, time: 0.3, duration: 0.15 },  // G5
+    { note: 1046.50, time: 0.45, duration: 0.4 }  // C6 (long)
+  ];
+  
+  fanfare.forEach(note => {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = note.note;
+    oscillator.type = 'square';
+    
+    const startTime = audioContext.currentTime + note.time;
+    gainNode.gain.setValueAtTime(0, startTime);
+    gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+    
+    oscillator.start(startTime);
+    oscillator.stop(startTime + note.duration);
+  });
+}
+
+// ===== DOM ELEMENTS =====
+let screens;
+let elements;
+
+// ===== UTILITY FUNCTIONS =====
+
+/**
+ * Shows a specific screen and hides all others
+ */
+function showScreen(screenId) {
+  Object.values(screens).forEach(screen => {
+    screen.style.display = 'none';
+  });
+  
+  if (screens[screenId]) {
+    screens[screenId].style.display = 'flex';
+  }
+}
+
+/**
+ * Typewriter effect for console text
+ */
+function typeWriter(text, element, speed, callback) {
+  if (!element) {
+    console.error('Element not found for typeWriter');
+    return;
+  }
+
+  // Use default speed if not provided
+  const typingSpeed = speed || TYPING_SPEED.FAST;
+
+  gameState.typingInProgress = true;
+  element.textContent = '';
+  
+  if (elements.nextBtn) {
+    elements.nextBtn.disabled = true;
+  }
+  
+  let charIndex = 0;
+
+  function typeNextChar() {
+    if (charIndex < text.length) {
+      element.textContent += text.charAt(charIndex);
+      element.scrollTop = element.scrollHeight;
+      charIndex++;
+      setTimeout(typeNextChar, typingSpeed);
+    } else {
+      gameState.typingInProgress = false;
+      if (elements.nextBtn) {
+        elements.nextBtn.disabled = false;
+      }
+      if (callback) {
+        callback();
+      }
+    }
+  }
+  
+  typeNextChar();
+}
+
+/**
+ * Shows loading transition between screens
+ */
+function loadingTransition(nextScreenId, nextAction) {
+  const overlay = elements.loadingOverlay;
+  
+  // Play loading sound
+  playLoadingBeeps();
+  
+  overlay.style.display = 'flex';
+  overlay.textContent = 'LOADING MODULE...';
+  
+  setTimeout(() => {
+    overlay.textContent = 'INITIALIZING SYSTEM...';
+  }, LOADING_DELAYS.INITIALIZE);
+  
+  setTimeout(() => {
+    overlay.textContent = 'READY.';
+  }, LOADING_DELAYS.READY);
+  
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    showScreen(nextScreenId);
+    if (nextAction) {
+      nextAction();
+    }
+  }, LOADING_DELAYS.COMPLETE);
+}
+
+/**
+ * Updates stat values and progress bars
+ */
+function updateStats() {
+  // Clamp values between min and max
+  gameState.morale = Math.max(STAT_LIMITS.MIN, Math.min(STAT_LIMITS.MAX, gameState.morale));
+  gameState.trust = Math.max(STAT_LIMITS.MIN, Math.min(STAT_LIMITS.MAX, gameState.trust));
+  gameState.productivity = Math.max(STAT_LIMITS.MIN, Math.min(STAT_LIMITS.MAX, gameState.productivity));
+
+  // Update display values
+  document.getElementById('moraleVal').textContent = gameState.morale;
+  document.getElementById('trustVal').textContent = gameState.trust;
+  document.getElementById('prodVal').textContent = gameState.productivity;
+
+  // Get bar and label elements
+  const moraleBar = document.getElementById('moraleBar');
+  const trustBar = document.getElementById('trustBar');
+  const prodBar = document.getElementById('prodBar');
+  
+  const moraleLabel = moraleBar.parentElement.previousElementSibling;
+  const trustLabel = trustBar.parentElement.previousElementSibling;
+  const prodLabel = prodBar.parentElement.previousElementSibling;
+
+  // Update progress bars with animation
+  moraleBar.style.width = gameState.morale + '%';
+  trustBar.style.width = gameState.trust + '%';
+  prodBar.style.width = gameState.productivity + '%';
+
+  // Add pulse animation to bars
+  moraleBar.classList.add('animate');
+  trustBar.classList.add('animate');
+  prodBar.classList.add('animate');
+
+  // Add flash animation to labels
+  moraleLabel.classList.add('flash');
+  trustLabel.classList.add('flash');
+  prodLabel.classList.add('flash');
+
+  // Remove animation classes after they complete
+  setTimeout(() => {
+    moraleBar.classList.remove('animate');
+    trustBar.classList.remove('animate');
+    prodBar.classList.remove('animate');
+    moraleLabel.classList.remove('flash');
+    trustLabel.classList.remove('flash');
+    prodLabel.classList.remove('flash');
+  }, 800);
+}
+
+/**
+ * Updates a specific stat and refreshes the display
+ */
+function updateStat(stat, value) {
+  if (gameState.hasOwnProperty(stat)) {
+    gameState[stat] += value;
+    updateStats();
+  }
+}
+
+/**
+ * Unlocks an achievement with visual feedback
+ */
+function unlockAchievement(achievementId) {
+  const achievementElement = document.getElementById(achievementId);
+  
+  if (achievementElement && !achievementElement.classList.contains('active')) {
+    achievementElement.classList.add('active', 'flash');
+    
+    // Play achievement sound
+    playAchievementChime();
+    
+    // Remove flash effect after animation completes
+    setTimeout(() => {
+      achievementElement.classList.remove('flash');
+    }, 2000);
+    
+    return achievementElement.textContent;
+  }
+  
+  return null;
+}
+
+/**
+ * Creates a choice button for scenarios
+ */
+function createChoiceButton(option, onChoiceMade) {
+  const btn = document.createElement('button');
+  btn.textContent = option.text;
+  btn.className = 'choice-btn';
+  
+  btn.addEventListener('click', () => {
+    // Play button click sound
+    playButtonClick();
+    
+    // Apply stat changes
+    updateStat('morale', option.effect.morale);
+    updateStat('trust', option.effect.trust);
+    updateStat('productivity', option.effect.productivity);
+
+    // Build feedback message with stat changes
+    let feedbackMsg = option.feedback + '\n\n';
+    feedbackMsg += '(Stats change → ';
+    feedbackMsg += 'Morale: ' + (option.effect.morale >= 0 ? '+' : '') + option.effect.morale + ', ';
+    feedbackMsg += 'Trust: ' + (option.effect.trust >= 0 ? '+' : '') + option.effect.trust + ', ';
+    feedbackMsg += 'Productivity: ' + (option.effect.productivity >= 0 ? '+' : '') + option.effect.productivity + ')';
+
+    // Unlock achievement if applicable
+    if (option.achievement) {
+      const achievementName = unlockAchievement(option.achievement);
+      if (achievementName) {
+        feedbackMsg += '\n\nAchievement unlocked: ' + achievementName + '!';
+      }
+    }
+
+    // Show feedback and call callback
+    typeWriter(feedbackMsg, elements.consoleText, TYPING_SPEED.FAST);
+    
+    if (onChoiceMade) {
+      onChoiceMade();
+    }
+  });
+  
+  return btn;
+}
+
+/**
+ * Shuffles an array randomly (Fisher-Yates shuffle)
+ */
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Generic scenario runner - eliminates duplicate code
+ */
+function runScenario(config) {
+  const text = config.text;
+  const options = config.options;
+  const onComplete = config.onComplete;
+  const scenarioNumber = config.scenarioNumber;
+
+  // Hide Next button and clear choices
+  elements.nextBtn.style.display = 'none';
+  elements.choicesDiv.innerHTML = '';
+
+  // Display scenario text
+  typeWriter(text, elements.consoleText, TYPING_SPEED.NORMAL, () => {
+    // Shuffle options so best answer isn't always first
+    const shuffledOptions = shuffleArray(options);
+    
+    // Create choice buttons after typing completes
+    shuffledOptions.forEach(option => {
+      const btn = createChoiceButton(option, () => {
+        // Record the choice made
+        gameState.choiceHistory.push({
+          scenarioNumber: scenarioNumber,
+          choiceText: option.text,
+          wasOptimal: option.isOptimal || false,
+          effect: option.effect
+        });
+        
+        // Clear choices and show Next button after choice is made
+        elements.choicesDiv.innerHTML = '';
+        elements.nextBtn.style.display = 'block';
+        
+        // Clone button to remove ALL event listeners
+        const newNextBtn = elements.nextBtn.cloneNode(true);
+        elements.nextBtn.parentNode.replaceChild(newNextBtn, elements.nextBtn);
+        elements.nextBtn = newNextBtn;
+        
+        // Set new handler
+        if (onComplete) {
+          elements.nextBtn.onclick = onComplete;
+        }
+      });
+      elements.choicesDiv.appendChild(btn);
+    });
+  });
+}
+
+// ===== SCENARIO CONFIGURATIONS =====
+
+const scenarios = {
+  scenario1: {
+    text: 'Scenario 1: The First Team Meeting\n\nIt\'s the first team meeting. People are quiet, unsure who to speak to, and wary of saying the wrong thing.\n\nWhat do you do?',
+    optimalChoice: 'Hold a structured round of introductions, encouraging everyone to share something about themselves.',
+    learningPoint: 'In the Forming stage, building trust through structured introductions is crucial because it helps team members feel comfortable and creates psychological safety.',
+    options: [
+      {
+        text: 'Hold a structured round of introductions, encouraging everyone to share something about themselves.',
+        effect: { morale: 5, trust: 10, productivity: 0 },
+        feedback: 'You chose to hold introductions, which works great because it builds trust and improves morale.',
+        achievement: 'achievement1',
+        isOptimal: true
+      },
+      {
+        text: 'Jump straight into tasks to save time.',
+        effect: { morale: 0, trust: -5, productivity: 5 },
+        feedback: 'You jumped into tasks. Productivity improved slightly but trust was reduced because team members felt overlooked.',
+        isOptimal: false
+      },
+      {
+        text: 'Ask a few members informally about their experience and interests.',
+        effect: { morale: 3, trust: 5, productivity: 2 },
+        feedback: 'You casually engaged the team, increasing trust and morale moderately.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  scenario2: {
+    text: 'Scenario 2: Clarifying Expectations\n\nTeam members are continuing with the tasks they usually complete, but they\'re unsure if this is how you, as their new leader, want them done.\n\nWhat do you do?',
+    optimalChoice: 'In your initial team meeting and communications, clarify expectations and desired outcomes.',
+    learningPoint: 'Clear expectations help teams move past Forming into productive work by reducing ambiguity and anxiety about performance.',
+    options: [
+      {
+        text: 'In your initial team meeting and communications, clarify expectations and desired outcomes.',
+        effect: { morale: 3, trust: 5, productivity: 2 },
+        feedback: 'You clarified expectations clearly. Team members feel guided, morale rises, and trust in your leadership grows.',
+        achievement: 'achievement2',
+        isOptimal: true
+      },
+      {
+        text: 'Give individual instructions privately to each team member.',
+        effect: { morale: 1, trust: 2, productivity: 1 },
+        feedback: 'You provided one-on-one guidance. Some trust is built, but the team may feel inconsistent overall.',
+        isOptimal: false
+      },
+      {
+        text: 'Do nothing and let them continue figuring it out themselves.',
+        effect: { morale: -2, trust: -3, productivity: -1 },
+        feedback: 'You didn\'t clarify expectations. Team members feel uncertain and frustrated, lowering morale and trust.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  scenario3: {
+    text: 'Scenario 3: First Week of Tasks\n\nYour team is starting their first week of tasks. Some aren\'t sure what\'s expected or how you like things done.\n\nWhat do you do?',
+    optimalChoice: 'Set clear goals and outline expectations, checking understanding.',
+    learningPoint: 'Setting clear goals early in the Forming stage prevents confusion and builds confidence, allowing teams to work more independently.',
+    options: [
+      {
+        text: 'Set clear goals and outline expectations, checking understanding.',
+        effect: { morale: 10, trust: 0, productivity: 10 },
+        feedback: 'Clarity boosted morale and productivity.',
+        achievement: 'achievement3',
+        isOptimal: true
+      },
+      {
+        text: 'Let team members figure things out themselves.',
+        effect: { morale: -5, trust: 0, productivity: 5 },
+        feedback: 'Lack of guidance caused morale to drop slightly; productivity moderately increased.',
+        isOptimal: false
+      },
+      {
+        text: 'Provide general guidance but let members make detailed choices.',
+        effect: { morale: 5, trust: 0, productivity: 8 },
+        feedback: 'Partial guidance helped morale and productivity moderately.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  scenario4: {
+    text: 'Scenario 4: Working Through Tasks\n\nTeam members are completing tasks but are wary of doing things differently than you might want.\n\nWhat do you do?',
+    optimalChoice: 'Walk through tasks with input from team members.',
+    learningPoint: 'Collaborative guidance in the Forming stage builds trust while ensuring quality, making team members feel valued and confident.',
+    options: [
+      {
+        text: 'Walk through tasks with input from team members.',
+        effect: { morale: 5, trust: 10, productivity: 0 },
+        feedback: 'Collaborative guidance improved morale and trust without rushing productivity.',
+        achievement: 'achievement4',
+        isOptimal: true
+      },
+      {
+        text: 'Observe quietly and correct when necessary.',
+        effect: { morale: 0, trust: -5, productivity: 5 },
+        feedback: 'Observation allowed some productivity but reduced trust.',
+        isOptimal: false
+      },
+      {
+        text: 'Give instructions on the first day but step back later.',
+        effect: { morale: 3, trust: 5, productivity: 5 },
+        feedback: 'Initial guidance helped morale and trust slightly.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  scenario5: {
+    text: 'Scenario 5: Unsure Team Member\n\nOne team member seems unsure about a task and worries about mistakes.\n\nWhat do you do?',
+    optimalChoice: 'Offer guidance and reassurance individually.',
+    learningPoint: 'Personal support in the Forming stage is essential for building individual confidence and demonstrating that mistakes are part of learning.',
+    options: [
+      {
+        text: 'Offer guidance and reassurance individually.',
+        effect: { morale: 10, trust: 5, productivity: 0 },
+        feedback: 'Personal attention increased morale and trust.',
+        achievement: 'achievement5',
+        isOptimal: true
+      },
+      {
+        text: 'Encourage them to get on with it and learn by doing.',
+        effect: { morale: -5, trust: 0, productivity: 5 },
+        feedback: 'Pushing them increased productivity slightly but reduced morale.',
+        isOptimal: false
+      },
+      {
+        text: 'Pair them with a confident colleague to observe.',
+        effect: { morale: 5, trust: 3, productivity: 3 },
+        feedback: 'Pairing improved morale and trust moderately; productivity improved slightly.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  scenario6: {
+    text: 'Scenario 6: Efficiency Improvements\n\nYou notice improvements that could make the team work more efficiently.\n\nWhat do you do?',
+    optimalChoice: 'Observe team for a few days then introduce changes gradually.',
+    learningPoint: 'In the Forming stage, gradual changes with observation show respect for the team and prevent overwhelming new members with too much change at once.',
+    options: [
+      {
+        text: 'Jump right in and make changes immediately.',
+        effect: { morale: -5, trust: -10, productivity: 10 },
+        feedback: 'Immediate changes boosted productivity but hurt morale and trust.',
+        isOptimal: false
+      },
+      {
+        text: 'Observe team for a few days then introduce changes gradually.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Gradual changes improved morale, trust, and productivity effectively.',
+        isOptimal: true
+      },
+      {
+        text: 'Discuss with team for suggestions before implementing.',
+        effect: { morale: 5, trust: 8, productivity: 7 },
+        feedback: 'Consulting team increased morale, trust, and productivity effectively.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  stormingScenario1: {
+    text: 'Storming Stage - Scenario 1: Differing Approaches\n\nTwo team members disagree on how to handle a task. Others are watching, unsure whether to intervene.\n\nWhat do you do?',
+    optimalChoice: 'Facilitate a discussion to find a balanced approach.',
+    learningPoint: 'In the Storming stage, facilitating constructive discussion helps the team learn to navigate conflicts themselves, building resilience and trust.',
+    options: [
+      {
+        text: 'Facilitate a discussion to find a balanced approach.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Encouraging discussion resolves tension and builds trust whilst keeping work on track.',
+        achievement: 'achievement6',
+        isOptimal: true
+      },
+      {
+        text: 'Decide on the approach yourself to save time.',
+        effect: { morale: -5, trust: -10, productivity: 10 },
+        feedback: 'Productivity rises, but morale and trust drop as team members feel overruled.',
+        isOptimal: false
+      },
+      {
+        text: 'Let the disagreement continue without intervening.',
+        effect: { morale: -10, trust: -5, productivity: -5 },
+        feedback: 'Avoiding the conflict worsens morale, trust, and slows progress.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  stormingScenario2: {
+    text: 'Storming Stage - Scenario 2: Experienced vs New Staff\n\nAn experienced colleague is strongly attached to one way of doing things, whilst newer team members have alternative ideas.\n\nWhat do you do?',
+    optimalChoice: 'Acknowledge experience but ask for everyone\'s input.',
+    learningPoint: 'Balancing experience with new perspectives prevents power imbalances and encourages innovation whilst respecting expertise.',
+    options: [
+      {
+        text: 'Acknowledge experience but ask for everyone\'s input.',
+        effect: { morale: 5, trust: 8, productivity: 5 },
+        feedback: 'Valuing experience whilst including all voices maintains trust and morale.',
+        achievement: 'achievement7',
+        isOptimal: true
+      },
+      {
+        text: 'Support the experienced colleague fully to avoid debate.',
+        effect: { morale: -5, trust: -5, productivity: 8 },
+        feedback: 'Backing one voice may speed things up short-term, but reduces trust and engagement.',
+        isOptimal: false
+      },
+      {
+        text: 'Challenge the approach publicly.',
+        effect: { morale: -10, trust: -5, productivity: 3 },
+        feedback: 'Public confrontation can lower morale and trust, slowing team cohesion.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  stormingScenario3: {
+    text: 'Storming Stage - Scenario 3: Role Confusion\n\nTwo colleagues are performing overlapping duties, causing small errors and confusion.\n\nWhat do you do?',
+    optimalChoice: 'Clarify roles and responsibilities for the team.',
+    learningPoint: 'Clear role definition in the Storming stage prevents territorial conflicts and reduces frustration caused by ambiguity.',
+    options: [
+      {
+        text: 'Clarify roles and responsibilities for the team.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Clarity reduces confusion, builds trust, and keeps productivity steady.',
+        achievement: 'achievement8',
+        isOptimal: true
+      },
+      {
+        text: 'Let them work it out themselves.',
+        effect: { morale: -5, trust: -5, productivity: 2 },
+        feedback: 'Leaving it unresolved increases frustration and reduces morale and trust.',
+        isOptimal: false
+      },
+      {
+        text: 'Reassign roles immediately yourself.',
+        effect: { morale: 0, trust: -5, productivity: 8 },
+        feedback: 'Productivity rises, but trust may drop as team members feel overruled.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  stormingScenario4: {
+    text: 'Storming Stage - Scenario 4: Sub-Groups Forming\n\nSome colleagues are starting to work in small sub-groups, and information isn\'t shared evenly.\n\nWhat do you do?',
+    optimalChoice: 'Encourage cross-team collaboration and regular updates.',
+    learningPoint: 'Promoting inclusivity prevents cliques from forming and ensures information flows freely, essential for moving past the Storming stage.',
+    options: [
+      {
+        text: 'Encourage cross-team collaboration and regular updates.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Inclusivity keeps trust and morale high whilst maintaining coordinated work.',
+        achievement: 'achievement9',
+        isOptimal: true
+      },
+      {
+        text: 'Ignore it unless conflict arises.',
+        effect: { morale: -5, trust: -5, productivity: 0 },
+        feedback: 'Ignoring emerging sub-groups can reduce cohesion and trust.',
+        isOptimal: false
+      },
+      {
+        text: 'Address the sub-groups directly and firmly.',
+        effect: { morale: -10, trust: -10, productivity: 2 },
+        feedback: 'Harsh intervention risks morale and trust, even if productivity slightly improves.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  stormingScenario5: {
+    text: 'Storming Stage - Scenario 5: Errors Under Pressure\n\nA team member made a minor mistake under a busy shift. Others notice and some comment.\n\nWhat do you do?',
+    optimalChoice: 'Coach privately and reinforce lessons for the team.',
+    learningPoint: 'Private coaching protects psychological safety during the Storming stage, where public criticism can escalate tensions and erode trust.',
+    options: [
+      {
+        text: 'Coach privately and reinforce lessons for the team.',
+        effect: { morale: 10, trust: 5, productivity: 2 },
+        feedback: 'Private guidance protects morale and trust whilst supporting learning.',
+        achievement: 'achievement10',
+        isOptimal: true
+      },
+      {
+        text: 'Highlight the mistake publicly to set an example.',
+        effect: { morale: -10, trust: -10, productivity: 5 },
+        feedback: 'Public criticism damages morale and trust, even if short-term productivity improves.',
+        isOptimal: false
+      },
+      {
+        text: 'Ignore it entirely.',
+        effect: { morale: -5, trust: -5, productivity: -5 },
+        feedback: 'Ignoring mistakes leaves uncertainty and lowers trust.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  stormingScenario6: {
+    text: 'Storming Stage - Scenario 6: Decision Deadlock\n\nThe team is split on a key decision, and progress is stalled.\n\nWhat do you do?',
+    optimalChoice: 'Facilitate a structured discussion to reach agreement.',
+    learningPoint: 'Teaching teams to reach consensus in the Storming stage builds decision-making skills and ownership, crucial for moving to the Norming stage.',
+    options: [
+      {
+        text: 'Facilitate a structured discussion to reach agreement.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Discussion balances opinions, maintains trust, and keeps the team moving.',
+        achievement: 'achievement11',
+        isOptimal: true
+      },
+      {
+        text: 'Decide yourself to save time.',
+        effect: { morale: -5, trust: -10, productivity: 10 },
+        feedback: 'Taking control boosts productivity but lowers morale and trust.',
+        isOptimal: false
+      },
+      {
+        text: 'Delay the decision to let tensions settle.',
+        effect: { morale: -5, trust: -5, productivity: 0 },
+        feedback: 'Delaying leaves tension unresolved, slowing progress and reducing trust.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  normingScenario1: {
+    text: 'Norming Stage - Scenario 1: Reinforcing Great Ways of Working\n\nSome team members are adopting different approaches to routine tasks, which may lead to minor inconsistencies.\n\nWhat do you do?',
+    optimalChoice: 'Recognise and reinforce the best approaches whilst guiding others to align.',
+    learningPoint: 'In the Norming stage, recognising good practices and gently guiding alignment builds cohesion without being overly controlling.',
+    options: [
+      {
+        text: 'Recognise and reinforce the best approaches whilst guiding others to align.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Reinforcing good practices strengthens cohesion, trust, and encourages consistent high-quality work.',
+        achievement: 'achievement12',
+        isOptimal: true
+      },
+      {
+        text: 'Let everyone continue their own way to avoid slowing down.',
+        effect: { morale: 0, trust: -5, productivity: 5 },
+        feedback: 'Allowing variations may maintain productivity but risks inconsistencies and reduces trust in standards.',
+        isOptimal: false
+      },
+      {
+        text: 'Impose strict rules for all tasks.',
+        effect: { morale: -5, trust: -5, productivity: 8 },
+        feedback: 'Strict enforcement boosts productivity short-term but can harm morale and engagement.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  normingScenario2: {
+    text: 'Norming Stage - Scenario 2: Planning for Improvements\n\nThe team has finished a busy period, and there are opportunities to improve efficiency and processes.\n\nWhat do you do?',
+    optimalChoice: 'Involve the team in reflecting and planning improvements.',
+    learningPoint: 'Team involvement in improvements during the Norming stage builds ownership and ensures changes are practical and supported.',
+    options: [
+      {
+        text: 'Involve the team in reflecting and planning improvements.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Team involvement builds trust, ownership, and ensures realistic and sustainable improvements.',
+        achievement: 'achievement13',
+        isOptimal: true
+      },
+      {
+        text: 'Create a plan yourself to save time.',
+        effect: { morale: -5, trust: -5, productivity: 8 },
+        feedback: 'Centralised planning may be efficient but reduces engagement and ownership.',
+        isOptimal: false
+      },
+      {
+        text: 'Ask the team to make suggestions but do not act on them.',
+        effect: { morale: 0, trust: -5, productivity: 3 },
+        feedback: 'Soliciting ideas without action risks frustration and reduces trust.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  normingScenario3: {
+    text: 'Norming Stage - Scenario 3: Maintaining Consistency\n\nSome colleagues are inconsistent in how they handle customer-facing tasks, which could affect the team\'s reputation.\n\nWhat do you do?',
+    optimalChoice: 'Provide guidance and model consistent approaches for the team.',
+    learningPoint: 'Modelling consistency in the Norming stage reinforces standards and builds professional confidence across the team.',
+    options: [
+      {
+        text: 'Provide guidance and model consistent approaches for the team.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Modelling and reinforcing consistency builds trust, morale, and professionalism across the team.',
+        achievement: 'achievement14',
+        isOptimal: true
+      },
+      {
+        text: 'Leave it for colleagues to self-correct.',
+        effect: { morale: 0, trust: -5, productivity: 3 },
+        feedback: 'Inconsistencies may persist, reducing trust and team confidence.',
+        isOptimal: false
+      },
+      {
+        text: 'Critique inconsistencies publicly.',
+        effect: { morale: -5, trust: -10, productivity: 5 },
+        feedback: 'Public criticism can reduce morale and trust, even if productivity is maintained.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  normingScenario4: {
+    text: 'Norming Stage - Scenario 4: Fostering Open Feedback Culture\n\nSome team members seem hesitant to raise concerns or give feedback on team processes.\n\nWhat do you do?',
+    optimalChoice: 'Encourage open and honest feedback in a safe environment.',
+    learningPoint: 'Creating psychological safety for feedback in the Norming stage strengthens trust and enables continuous improvement.',
+    options: [
+      {
+        text: 'Encourage open and honest feedback in a safe environment.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Creating a safe space for feedback strengthens trust, engagement, and helps the team continuously improve.',
+        achievement: 'achievement15',
+        isOptimal: true
+      },
+      {
+        text: 'Only accept feedback through formal channels.',
+        effect: { morale: 0, trust: -5, productivity: 3 },
+        feedback: 'Restricting feedback may maintain control but can reduce trust and slow improvement.',
+        isOptimal: false
+      },
+      {
+        text: 'Ignore feedback opportunities to stay focused on tasks.',
+        effect: { morale: -5, trust: -5, productivity: 2 },
+        feedback: 'Avoiding feedback limits trust and engagement, potentially missing important insights.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  performingScenario1: {
+    text: 'Performing Stage - Scenario 1: Shared Leadership in Action\n\nDuring a busy week, one of your senior team members volunteers to lead the daily briefing so you can attend a regional meeting.\n\nWhat do you do?',
+    optimalChoice: 'Accept and encourage them to lead, offering a quick check-in afterward.',
+    learningPoint: 'In the Performing stage, delegating leadership builds confidence and demonstrates mutual trust — essential for sustaining high performance.',
+    options: [
+      {
+        text: 'Accept and encourage them to lead, offering a quick check-in afterward.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Delegating leadership strengthens confidence and shows that trust is mutual — a key element of high-performing teams.',
+        achievement: 'achievement16',
+        isOptimal: true
+      },
+      {
+        text: 'Decline politely and lead the meeting yourself as usual.',
+        effect: { morale: 0, trust: -5, productivity: 5 },
+        feedback: 'Keeping control maintains structure but can discourage shared ownership.',
+        isOptimal: false
+      },
+      {
+        text: 'Let them lead without any preparation or support.',
+        effect: { morale: 0, trust: 0, productivity: -5 },
+        feedback: 'Empowering others works best when paired with guidance and follow-up.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  performingScenario2: {
+    text: 'Performing Stage - Scenario 2: Observing and Responding to Team Needs\n\nYou notice that one colleague seems unusually quiet during team discussions, whilst others dominate the conversation.\n\nWhat do you do?',
+    optimalChoice: 'Observe first, then privately ask how they\'re feeling and what might help them contribute more comfortably.',
+    learningPoint: 'Observing and inquiring demonstrates emotional intelligence and ensures everyone feels valued, maintaining team cohesion.',
+    options: [
+      {
+        text: 'Observe first, then privately ask how they\'re feeling and what might help them contribute more comfortably.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Observing and inquiring shows emotional intelligence and helps everyone feel valued.',
+        achievement: 'achievement17',
+        isOptimal: true
+      },
+      {
+        text: 'Ask them directly in the meeting to speak up more often.',
+        effect: { morale: -5, trust: -5, productivity: 0 },
+        feedback: 'Public pressure may discourage participation rather than encourage it.',
+        isOptimal: false
+      },
+      {
+        text: 'Do nothing — they\'ll contribute when ready.',
+        effect: { morale: 0, trust: -5, productivity: -5 },
+        feedback: 'Ignoring early signs can make quieter team members feel overlooked.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  performingScenario3: {
+    text: 'Performing Stage - Scenario 3: Encouraging Collaboration\n\nTwo colleagues have developed an excellent idea to improve the customer experience. Other team members seem enthusiastic but unsure how to get involved.\n\nWhat do you do?',
+    optimalChoice: 'Facilitate a short meeting to refine the idea as a group and assign roles collaboratively.',
+    learningPoint: 'Facilitating collaboration in the Performing stage reinforces shared leadership and strengthens team ownership of outcomes.',
+    options: [
+      {
+        text: 'Facilitate a short meeting to refine the idea as a group and assign roles collaboratively.',
+        effect: { morale: 5, trust: 10, productivity: 5 },
+        feedback: 'Facilitating collaboration reinforces shared leadership and team cohesion.',
+        achievement: 'achievement18',
+        isOptimal: true
+      },
+      {
+        text: 'Ask the two colleagues to finalise the plan themselves.',
+        effect: { morale: 0, trust: 0, productivity: 5 },
+        feedback: 'This maintains progress but limits broader engagement and shared ownership.',
+        isOptimal: false
+      },
+      {
+        text: 'Take the lead and decide which ideas to use yourself.',
+        effect: { morale: -5, trust: -5, productivity: 3 },
+        feedback: 'Taking over undermines collaboration and can reduce the team\'s sense of ownership.',
+        isOptimal: false
+      }
+    ]
+  },
+  
+  performingScenario4: {
+    text: 'Performing Stage - Scenario 4: Positive Reinforcement and Support\n\nA newer colleague completes a challenging task successfully with help from peers who coached them along the way.\n\nWhat do you do?',
+    optimalChoice: 'Recognise both the individual\'s effort and the team\'s supportive behaviour in your next meeting.',
+    learningPoint: 'Publicly reinforcing supportive behaviour strengthens team culture and shared accountability in high-performing teams.',
+    options: [
+      {
+        text: 'Recognise both the individual\'s effort and the team\'s supportive behaviour in your next meeting.',
+        effect: { morale: 10, trust: 5, productivity: 5 },
+        feedback: 'Publicly reinforcing supportive behaviour strengthens team culture and shared accountability.',
+        achievement: 'achievement19',
+        isOptimal: true
+      },
+      {
+        text: 'Praise the individual privately for their good work.',
+        effect: { morale: 5, trust: 0, productivity: 3 },
+        feedback: 'Individual recognition builds confidence but misses an opportunity to reinforce teamwork.',
+        isOptimal: false
+      },
+      {
+        text: 'Congratulate them briefly and move on — everyone\'s just doing their job.',
+        effect: { morale: -5, trust: -5, productivity: 0 },
+        feedback: 'Lack of recognition can erode morale in even the strongest teams.',
+        isOptimal: false
+      }
+    ]
+  }
+};
+
+/**
+ * Switches visible achievements based on current stage
+ */
+function switchAchievements(stage) {
+  if (stage === 'storming') {
+    // Hide Forming achievements
+    document.querySelectorAll('.forming-achievement').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Show Storming achievements
+    document.querySelectorAll('.storming-achievement').forEach(el => {
+      el.style.display = 'block';
+    });
+  } else if (stage === 'norming') {
+    // Hide Storming achievements
+    document.querySelectorAll('.storming-achievement').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Show Norming achievements
+    document.querySelectorAll('.norming-achievement').forEach(el => {
+      el.style.display = 'block';
+    });
+  } else if (stage === 'performing') {
+    // Hide Norming achievements
+    document.querySelectorAll('.norming-achievement').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Show Performing achievements
+    document.querySelectorAll('.performing-achievement').forEach(el => {
+      el.style.display = 'block';
+    });
+  }
+}
+
+/**
+ * Generates dynamic feedback for Performing stage
+ */
+function generatePerformingFeedback() {
+  // Filter only Performing stage choices (scenarios 17-20)
+  const performingChoices = gameState.choiceHistory.filter(choice => choice.scenarioNumber >= 17 && choice.scenarioNumber <= 20);
+  const optimalChoices = performingChoices.filter(choice => choice.wasOptimal).length;
+  const morale = gameState.morale;
+  const trust = gameState.trust;
+  const productivity = gameState.productivity;
+  
+  // Determine performance level (4 scenarios total)
+  let performanceLevel = '';
+  let performanceFeedback = '';
+  
+  if (optimalChoices >= 3) {
+    // 0-1 missed = Excellent
+    performanceLevel = 'EXCELLENT';
+    performanceFeedback = 'Brilliant leadership! You\'ve fostered a culture where shared leadership, collaboration, and mutual trust thrive. Your ability to step back and empower the team reflects a truly performing environment.';
+  } else if (optimalChoices >= 2) {
+    // 2 missed = Good
+    performanceLevel = 'GOOD';
+    performanceFeedback = 'Solid work! You\'re supporting a strong, cohesive team. To reach the next level, focus on encouraging shared ownership and recognising collaborative effort more consistently.';
+  } else {
+    // 3+ missed = Needs Improvement
+    performanceLevel = 'NEEDS IMPROVEMENT';
+    performanceFeedback = 'Some choices limited collaboration or recognition. In this stage, it\'s crucial to empower your team, observe their needs, and reinforce the positive behaviours that sustain high performance.';
+  }
+  
+  // Build main feedback message
+  let feedback = '========================================\n\n';
+  feedback += 'PERFORMING STAGE - COMPLETION SUMMARY\n\n';
+  feedback += '========================================\n\n';
+  feedback += 'You\'ve completed the Performing stage module, ' + gameState.playerName + '.\n\n';
+  feedback += 'Here\'s how your choices affected team dynamics during this stage:\n\n';
+  feedback += '• Morale: ' + morale + '\n';
+  feedback += '• Trust: ' + trust + '\n';
+  feedback += '• Productivity: ' + productivity + '\n';
+  feedback += '• Optimal Choices: ' + optimalChoices + ' out of 4\n\n';
+  feedback += 'Your performance level: ' + performanceLevel + '\n\n';
+  feedback += 'In the Performing stage, the team demonstrates shared leadership, strong collaboration, and mutual support. The manager\'s role is to observe, inquire, and fulfil team needs whilst recognising success and sustaining morale.\n\n';
+  feedback += performanceFeedback + '\n\n';
+  
+  // Add scenario-specific feedback for missed opportunities
+  if (optimalChoices < 4) {
+    feedback += '========================================\n\n';
+    feedback += 'MISSED OPPORTUNITIES:\n\n';
+    
+    performingChoices.forEach((choice) => {
+      if (!choice.wasOptimal) {
+        const scenarioKey = 'performingScenario' + (choice.scenarioNumber - 16);
+        const scenario = scenarios[scenarioKey];
+        feedback += 'Scenario ' + choice.scenarioNumber + ':\n';
+        feedback += 'The optimal choice was: "' + scenario.optimalChoice + '"\n';
+        feedback += 'Why: ' + scenario.learningPoint + '\n';
+        feedback += 'Your choice had these effects: Morale ' + (choice.effect.morale >= 0 ? '+' : '') + choice.effect.morale;
+        feedback += ', Trust ' + (choice.effect.trust >= 0 ? '+' : '') + choice.effect.trust;
+        feedback += ', Productivity ' + (choice.effect.productivity >= 0 ? '+' : '') + choice.effect.productivity + '\n';
+        feedback += 'In the Performing stage, your influence comes from enabling the team\'s strengths — not directing their every move.\n\n';
+      }
+    });
+  }
+  
+  feedback += '========================================\n\n';
+  feedback += 'MANAGER COACHING REMINDER:\n\n';
+  feedback += 'At the Performing stage, your goal is to sustain what works — nurture shared leadership, respond to team needs, and celebrate the way colleagues support each other. This is how great teams stay great.\n\n';
+  feedback += '========================================\n\n';
+  feedback += 'CONGRATULATIONS!\n\n';
+  feedback += 'You\'ve completed all four stages of the Tuckman Model. You\'ve guided your team from initial formation through conflicts, norming, and finally to high performance.\n\n';
+  feedback += 'Thank you for using FP-TeamLink 99, ' + gameState.playerName + '!\n\n';
+  feedback += 'Apply these principles in your leadership to build confident, cohesive, and high-performing teams.';
+  
+  return feedback;
+}
+
+/**
+ * Generates dynamic feedback for Norming stage
+ */
+function generateNormingFeedback() {
+  // Filter only Norming stage choices (scenarios 13-16)
+  const normingChoices = gameState.choiceHistory.filter(choice => choice.scenarioNumber >= 13 && choice.scenarioNumber <= 16);
+  const optimalChoices = normingChoices.filter(choice => choice.wasOptimal).length;
+  const morale = gameState.morale;
+  const trust = gameState.trust;
+  const productivity = gameState.productivity;
+  
+  // Determine performance level (4 scenarios total)
+  let performanceLevel = '';
+  let performanceFeedback = '';
+  
+  if (optimalChoices >= 3) {
+    // 0-1 missed = Excellent
+    performanceLevel = 'EXCELLENT';
+    performanceFeedback = 'Well done! Your leadership reinforced shared standards, encouraged collaboration, and maintained trust across the team. This balanced approach helps the group become more self-sufficient and ready for the Performing stage.';
+  } else if (optimalChoices >= 2) {
+    // 2 missed = Good
+    performanceLevel = 'GOOD';
+    performanceFeedback = 'Good work! You supported your team through this stage with several effective decisions. To strengthen further, focus on consistency and open communication — these will help build confidence and prepare the team for higher performance.';
+  } else {
+    // 3+ missed = Needs Improvement
+    performanceLevel = 'NEEDS IMPROVEMENT';
+    performanceFeedback = 'Some of your choices may have limited trust or reduced morale. During the Norming stage, it\'s vital to reinforce positive routines, encourage honest dialogue, and maintain fairness so the team feels aligned and valued.';
+  }
+  
+  // Build main feedback message
+  let feedback = '========================================\n\n';
+  feedback += 'NORMING STAGE - COMPLETION SUMMARY\n\n';
+  feedback += '========================================\n\n';
+  feedback += 'You\'ve completed the Norming stage module, ' + gameState.playerName + '.\n\n';
+  feedback += 'Here\'s how your choices affected team dynamics during this stage:\n\n';
+  feedback += '• Morale: ' + morale + '\n';
+  feedback += '• Trust: ' + trust + '\n';
+  feedback += '• Productivity: ' + productivity + '\n';
+  feedback += '• Optimal Choices: ' + optimalChoices + ' out of 4\n\n';
+  feedback += 'Your performance level: ' + performanceLevel + '\n\n';
+  feedback += 'In the Norming stage, teams begin to settle into effective patterns of working. Roles are clearer, collaboration improves, and trust becomes the foundation for productivity. As a manager, your focus now is on reinforcing consistency, maintaining positive culture, and encouraging open feedback that helps the team grow.\n\n';
+  feedback += performanceFeedback + '\n\n';
+  
+  // Add scenario-specific feedback for missed opportunities
+  if (optimalChoices < 4) {
+    feedback += '========================================\n\n';
+    feedback += 'MISSED OPPORTUNITIES:\n\n';
+    
+    normingChoices.forEach((choice) => {
+      if (!choice.wasOptimal) {
+        const scenarioKey = 'normingScenario' + (choice.scenarioNumber - 12);
+        const scenario = scenarios[scenarioKey];
+        feedback += 'Scenario ' + choice.scenarioNumber + ':\n';
+        feedback += 'The optimal choice was: "' + scenario.optimalChoice + '"\n';
+        feedback += 'Why: ' + scenario.learningPoint + '\n';
+        feedback += 'Your choice had these effects: Morale ' + (choice.effect.morale >= 0 ? '+' : '') + choice.effect.morale;
+        feedback += ', Trust ' + (choice.effect.trust >= 0 ? '+' : '') + choice.effect.trust;
+        feedback += ', Productivity ' + (choice.effect.productivity >= 0 ? '+' : '') + choice.effect.productivity + '\n';
+        feedback += 'In the Norming stage, even small decisions about communication, recognition, and feedback shape whether the team feels secure and united.\n\n';
+      }
+    });
+  }
+  
+  feedback += '========================================\n\n';
+  feedback += 'MANAGER COACHING REMINDER:\n\n';
+  feedback += 'As your team stabilises in the Norming stage, your leadership focus should shift from control to empowerment. Continue modelling the right behaviours, recognise success, and maintain consistency — these habits lay the groundwork for a confident, high-performing team.\n\n';
+  feedback += '========================================\n\n';
+  feedback += 'Congratulations on completing the Norming stage!\n\n';
+  feedback += 'Press NEXT to advance to the Performing stage of the Tuckman Model, where you\'ll support your team in reaching peak performance.';
+  
+  return feedback;
+}
+
+/**
+ * Generates dynamic feedback for Storming stage
+ */
+function generateStormingFeedback() {
+  // Filter only Storming stage choices (scenarios 7-12)
+  const stormingChoices = gameState.choiceHistory.filter(choice => choice.scenarioNumber >= 7 && choice.scenarioNumber <= 12);
+  const optimalChoices = stormingChoices.filter(choice => choice.wasOptimal).length;
+  const morale = gameState.morale;
+  const trust = gameState.trust;
+  const productivity = gameState.productivity;
+  
+  // Determine performance level
+  let performanceLevel = '';
+  let performanceFeedback = '';
+  
+  if (optimalChoices >= 5) {
+    // 0-1 missed = Excellent
+    performanceLevel = 'EXCELLENT';
+    performanceFeedback = 'Well done! Your choices consistently balanced productivity with trust and morale. You demonstrated strong ability to facilitate open discussions and address issues thoughtfully. Keep applying these principles when navigating team conflicts and tensions.';
+  } else if (optimalChoices >= 4) {
+    // 2 missed = Good
+    performanceLevel = 'GOOD';
+    performanceFeedback = 'Good effort! Some choices helped the team, whilst others could be improved. Focus on encouraging input, resolving disagreements constructively, and maintaining morale. In the Storming stage, balancing different perspectives is key to moving forward.';
+  } else {
+    // 3+ missed = Needs Improvement
+    performanceLevel = 'NEEDS IMPROVEMENT';
+    performanceFeedback = 'Some decisions may have increased tension or reduced trust. In the Storming stage, it\'s critical to address conflicts, listen to different perspectives, and guide the team without undermining morale. Remember: teams need support to work through disagreements constructively.';
+  }
+  
+  // Build main feedback message
+  let feedback = '========================================\n\n';
+  feedback += 'STORMING STAGE - COMPLETION SUMMARY\n\n';
+  feedback += '========================================\n\n';
+  feedback += 'You\'ve completed the Storming stage module, ' + gameState.playerName + '.\n\n';
+  feedback += 'Here\'s how your choices affected team dynamics during this stage:\n\n';
+  feedback += '• Morale: ' + morale + '\n';
+  feedback += '• Trust: ' + trust + '\n';
+  feedback += '• Productivity: ' + productivity + '\n';
+  feedback += '• Optimal Choices: ' + optimalChoices + ' out of 6\n\n';
+  feedback += 'Your performance level: ' + performanceLevel + '\n\n';
+  feedback += 'In the Storming stage, teams may challenge authority, express differing opinions, and test boundaries. As a manager, your role is to navigate conflicts, maintain trust, and guide the team towards productive collaboration.\n\n';
+  feedback += performanceFeedback + '\n\n';
+  
+  // Add scenario-specific feedback for missed opportunities
+  if (optimalChoices < 6) {
+    feedback += '========================================\n\n';
+    feedback += 'MISSED OPPORTUNITIES:\n\n';
+    
+    stormingChoices.forEach((choice) => {
+      if (!choice.wasOptimal) {
+        const scenarioKey = 'stormingScenario' + (choice.scenarioNumber - 6);
+        const scenario = scenarios[scenarioKey];
+        feedback += 'Scenario ' + choice.scenarioNumber + ':\n';
+        feedback += 'The optimal choice was: "' + scenario.optimalChoice + '"\n';
+        feedback += 'Why: ' + scenario.learningPoint + '\n';
+        feedback += 'Your choice had these effects: Morale ' + (choice.effect.morale >= 0 ? '+' : '') + choice.effect.morale;
+        feedback += ', Trust ' + (choice.effect.trust >= 0 ? '+' : '') + choice.effect.trust;
+        feedback += ', Productivity ' + (choice.effect.productivity >= 0 ? '+' : '') + choice.effect.productivity + '\n\n';
+      }
+    });
+  }
+  
+  feedback += '========================================\n\n';
+  feedback += 'Congratulations on completing the Storming stage!\n\n';
+  feedback += 'Press NEXT to advance to the Norming stage of the Tuckman Model, where you\'ll help the team establish working norms and build cohesion.';
+  
+  return feedback;
+}
+
+/**
+ * Generates dynamic feedback based on user performance
+ */
+function generateFinalFeedback() {
+  const optimalChoices = gameState.choiceHistory.filter(choice => choice.wasOptimal).length;
+  const morale = gameState.morale;
+  const trust = gameState.trust;
+  const productivity = gameState.productivity;
+  
+  // Determine performance level
+  let performanceLevel = '';
+  let performanceFeedback = '';
+  
+  if (optimalChoices >= 5) {
+    // 0-1 missed = Excellent
+    performanceLevel = 'EXCELLENT';
+    performanceFeedback = 'Great work! You consistently chose actions that build trust and morale while keeping productivity steady. You demonstrated strong understanding of the Forming stage principles. Keep applying these principles to help new teams settle quickly and build a strong foundation for future growth.';
+  } else if (optimalChoices >= 4) {
+    // 2 missed = Good
+    performanceLevel = 'GOOD';
+    performanceFeedback = 'Good effort! Some choices were effective in building trust and morale, while others could be improved. Focus on structured introductions, clear expectations, and early support to maximize team confidence. In the Forming stage, prioritizing trust-building often leads to better long-term productivity.';
+  } else {
+    // 3+ missed = Needs Improvement
+    performanceLevel = 'NEEDS IMPROVEMENT';
+    performanceFeedback = 'Some of your choices may have left the team feeling uncertain or overlooked. In the Forming stage, it\'s important to build trust through introductions, provide clear guidance, and support team members individually. Remember: rushing productivity in the Forming stage often backfires as team members need time to build confidence and psychological safety first.';
+  }
+  
+  // Build main feedback message
+  let feedback = '========================================\n\n';
+  feedback += 'FORMING STAGE - COMPLETION SUMMARY\n\n';
+  feedback += '========================================\n\n';
+  feedback += 'You\'ve completed the Forming stage module, ' + gameState.playerName + '.\n\n';
+  feedback += 'Here\'s how your team management choices affected early team dynamics:\n\n';
+  feedback += '• Morale: ' + morale + '\n';
+  feedback += '• Trust: ' + trust + '\n';
+  feedback += '• Productivity: ' + productivity + '\n';
+  feedback += '• Optimal Choices: ' + optimalChoices + ' out of 6\n\n';
+  feedback += 'Your performance level: ' + performanceLevel + '\n\n';
+  feedback += performanceFeedback + '\n\n';
+  
+  // Add scenario-specific feedback for missed opportunities
+  if (optimalChoices < 6) {
+    feedback += '========================================\n\n';
+    feedback += 'MISSED OPPORTUNITIES:\n\n';
+    
+    gameState.choiceHistory.forEach((choice, index) => {
+      if (!choice.wasOptimal) {
+        const scenarioKey = 'scenario' + choice.scenarioNumber;
+        const scenario = scenarios[scenarioKey];
+        feedback += 'Scenario ' + choice.scenarioNumber + ':\n';
+        feedback += 'The optimal choice was: "' + scenario.optimalChoice + '"\n';
+        feedback += 'Why: ' + scenario.learningPoint + '\n';
+        feedback += 'Your choice had these effects: Morale ' + (choice.effect.morale >= 0 ? '+' : '') + choice.effect.morale;
+        feedback += ', Trust ' + (choice.effect.trust >= 0 ? '+' : '') + choice.effect.trust;
+        feedback += ', Productivity ' + (choice.effect.productivity >= 0 ? '+' : '') + choice.effect.productivity + '\n\n';
+      }
+    });
+  }
+  
+  feedback += '========================================\n\n';
+  feedback += 'Congratulations on completing the Forming stage!\n\n';
+  feedback += 'Press NEXT to advance to the Storming stage of the Tuckman Model, where you\'ll navigate team conflicts and disagreements.';
+  
+  return feedback;
+}
+
+// ===== SCENARIO FUNCTIONS =====
+
+function startScenario1() {
+  runScenario({
+    text: scenarios.scenario1.text,
+    options: scenarios.scenario1.options,
+    scenarioNumber: 1,
+    onComplete: startScenario2
+  });
+}
+
+function startScenario2() {
+  runScenario({
+    text: scenarios.scenario2.text,
+    options: scenarios.scenario2.options,
+    scenarioNumber: 2,
+    onComplete: startScenario3
+  });
+}
+
+function startScenario3() {
+  runScenario({
+    text: scenarios.scenario3.text,
+    options: scenarios.scenario3.options,
+    scenarioNumber: 3,
+    onComplete: startScenario4
+  });
+}
+
+function startScenario4() {
+  runScenario({
+    text: scenarios.scenario4.text,
+    options: scenarios.scenario4.options,
+    scenarioNumber: 4,
+    onComplete: startScenario5
+  });
+}
+
+function startScenario5() {
+  runScenario({
+    text: scenarios.scenario5.text,
+    options: scenarios.scenario5.options,
+    scenarioNumber: 5,
+    onComplete: startScenario6
+  });
+}
+
+function startScenario6() {
+  runScenario({
+    text: scenarios.scenario6.text,
+    options: scenarios.scenario6.options,
+    scenarioNumber: 6,
+    onComplete: showFinalFeedback
+  });
+}
+
+function showFinalFeedback() {
+  playCompletionFanfare(); // Play completion sound
+  const finalFeedback = generateFinalFeedback();
+  typeWriter(finalFeedback, elements.consoleText, TYPING_SPEED.FAST);
+  
+  // Update Next button to go to Storming stage intro
+  elements.nextBtn.onclick = showStormingIntro;
+}
+
+function showStormingIntro() {
+  // Switch to Storming achievements
+  switchAchievements('storming');
+  
+  const stormingIntro = gameState.playerName + ', welcome to the Storming Stage.\n\n' +
+    'According to the Tuckman Model, the Storming stage is when teams often experience conflict, test boundaries, and challenge leadership. How you manage this stage is crucial: handling disagreements constructively, balancing input from experienced and newer team members, and maintaining morale will determine whether the team moves smoothly towards cohesion.\n\n' +
+    'As a manager stepping into an already formed team, your approach now will shape how well they handle disagreements, manage tasks, and maintain trust.\n\n' +
+    'Your team has been working together for a little while, but differences of opinion and working styles are starting to surface. Some colleagues are confident, whilst others are newer or more cautious.\n\n' +
+    'Observe team dynamics carefully and choose your responses thoughtfully, being too directive or too hands-off can create tension, lower morale, and erode trust.\n\n' +
+    'Press "Next" to start guiding your team through this stage.';
+  
+  typeWriter(stormingIntro, elements.consoleText, TYPING_SPEED.NORMAL);
+  
+  // Update Next button to start Storming scenarios
+  elements.nextBtn.onclick = startStormingScenario1;
+}
+
+function startStormingScenario1() {
+  runScenario({
+    text: scenarios.stormingScenario1.text,
+    options: scenarios.stormingScenario1.options,
+    scenarioNumber: 7,
+    onComplete: startStormingScenario2
+  });
+}
+
+function startStormingScenario2() {
+  runScenario({
+    text: scenarios.stormingScenario2.text,
+    options: scenarios.stormingScenario2.options,
+    scenarioNumber: 8,
+    onComplete: startStormingScenario3
+  });
+}
+
+function startStormingScenario3() {
+  runScenario({
+    text: scenarios.stormingScenario3.text,
+    options: scenarios.stormingScenario3.options,
+    scenarioNumber: 9,
+    onComplete: startStormingScenario4
+  });
+}
+
+function startStormingScenario4() {
+  runScenario({
+    text: scenarios.stormingScenario4.text,
+    options: scenarios.stormingScenario4.options,
+    scenarioNumber: 10,
+    onComplete: startStormingScenario5
+  });
+}
+
+function startStormingScenario5() {
+  runScenario({
+    text: scenarios.stormingScenario5.text,
+    options: scenarios.stormingScenario5.options,
+    scenarioNumber: 11,
+    onComplete: startStormingScenario6
+  });
+}
+
+function startStormingScenario6() {
+  runScenario({
+    text: scenarios.stormingScenario6.text,
+    options: scenarios.stormingScenario6.options,
+    scenarioNumber: 12,
+    onComplete: showStormingFeedback
+  });
+}
+
+function showStormingFeedback() {
+  playCompletionFanfare(); // Play completion sound
+  const stormingFeedback = generateStormingFeedback();
+  typeWriter(stormingFeedback, elements.consoleText, TYPING_SPEED.FAST);
+  
+  // Update Next button to go to Norming stage
+  elements.nextBtn.onclick = showNormingIntro;
+}
+
+function showNormingIntro() {
+  // Switch to Norming achievements
+  switchAchievements('norming');
+  
+  const normingIntro = gameState.playerName + ', welcome to the Norming Stage.\n\n' +
+    'Your team has begun to settle into their roles. Conflicts are less frequent, and team members are starting to work more collaboratively. Communication is improving, and people are beginning to rely on each other whilst developing shared approaches.\n\n' +
+    'According to the Tuckman Model, the Norming stage is when teams establish cohesion, develop mutual respect, and agree on how to work together. Your role as a manager now is to reinforce good practices, encourage collaboration, and support the team in taking ownership of their tasks.\n\n' +
+    'Observe team interactions and guide them in ways that strengthen cohesion, trust, and productivity. Overly controlling actions can reduce engagement, whilst too little involvement can lead to missed opportunities for alignment.\n\n' +
+    'Press "Next" to begin guiding your team through this stage.';
+  
+  typeWriter(normingIntro, elements.consoleText, TYPING_SPEED.NORMAL);
+  
+  // Update Next button to start Norming scenarios
+  elements.nextBtn.onclick = startNormingScenario1;
+}
+
+function startNormingScenario1() {
+  runScenario({
+    text: scenarios.normingScenario1.text,
+    options: scenarios.normingScenario1.options,
+    scenarioNumber: 13,
+    onComplete: startNormingScenario2
+  });
+}
+
+function startNormingScenario2() {
+  runScenario({
+    text: scenarios.normingScenario2.text,
+    options: scenarios.normingScenario2.options,
+    scenarioNumber: 14,
+    onComplete: startNormingScenario3
+  });
+}
+
+function startNormingScenario3() {
+  runScenario({
+    text: scenarios.normingScenario3.text,
+    options: scenarios.normingScenario3.options,
+    scenarioNumber: 15,
+    onComplete: startNormingScenario4
+  });
+}
+
+function startNormingScenario4() {
+  runScenario({
+    text: scenarios.normingScenario4.text,
+    options: scenarios.normingScenario4.options,
+    scenarioNumber: 16,
+    onComplete: showNormingFeedback
+  });
+}
+
+function showNormingFeedback() {
+  playCompletionFanfare(); // Play completion sound
+  const normingFeedback = generateNormingFeedback();
+  typeWriter(normingFeedback, elements.consoleText, TYPING_SPEED.FAST);
+  
+  // Update Next button to go to Performing stage
+  elements.nextBtn.onclick = showPerformingIntro;
+}
+
+function showPerformingIntro() {
+  // Switch to Performing achievements
+  switchAchievements('performing');
+  
+  const performingIntro = 'Welcome to the final stage, Performing.\n\n' +
+    gameState.playerName + ', your team has reached the Performing stage of Tuckman\'s model — they\'re confident, motivated, and work well together with minimal supervision. Communication flows easily, roles are clear, and people support one another naturally.\n\n' +
+    'As a manager joining or leading at this stage, your role shifts again: you\'re no longer steering every action but instead observing, inquiring, and fulfilling team needs so they can stay effective. This is when shared leadership begins to emerge — team members take initiative, hold each other accountable, and collaborate to reach shared goals.\n\n' +
+    'Now your focus is to sustain the culture that makes this possible: trust, autonomy, and continuous support.\n\n' +
+    'Press "Next" to begin guiding your high-performing team.';
+  
+  typeWriter(performingIntro, elements.consoleText, TYPING_SPEED.NORMAL);
+  
+  // Update Next button to start Performing scenarios
+  elements.nextBtn.onclick = startPerformingScenario1;
+}
+
+function startPerformingScenario1() {
+  runScenario({
+    text: scenarios.performingScenario1.text,
+    options: scenarios.performingScenario1.options,
+    scenarioNumber: 17,
+    onComplete: startPerformingScenario2
+  });
+}
+
+function startPerformingScenario2() {
+  runScenario({
+    text: scenarios.performingScenario2.text,
+    options: scenarios.performingScenario2.options,
+    scenarioNumber: 18,
+    onComplete: startPerformingScenario3
+  });
+}
+
+function startPerformingScenario3() {
+  runScenario({
+    text: scenarios.performingScenario3.text,
+    options: scenarios.performingScenario3.options,
+    scenarioNumber: 19,
+    onComplete: startPerformingScenario4
+  });
+}
+
+function startPerformingScenario4() {
+  runScenario({
+    text: scenarios.performingScenario4.text,
+    options: scenarios.performingScenario4.options,
+    scenarioNumber: 20,
+    onComplete: showPerformingFeedback
+  });
+}
+
+function showPerformingFeedback() {
+  playCompletionFanfare(); // Play completion sound
+  const performingFeedback = generatePerformingFeedback();
+  typeWriter(performingFeedback, elements.consoleText, TYPING_SPEED.FAST);
+}
+
+// ===== INITIALIZATION =====
+// Wait for DOM to be fully loaded before setting up event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize DOM element references
+  screens = {
+    intro: document.getElementById('introScreen'),
+    name: document.getElementById('nameScreen'),
+    welcome: document.getElementById('welcomeScreen'),
+    terminal: document.getElementById('terminalScreen')
+  };
+
+  elements = {
+    consoleText: document.getElementById('consoleText'),
+    choicesDiv: document.getElementById('choices'),
+    nextBtn: document.getElementById('nextBtn'),
+    loadingOverlay: document.getElementById('loadingOverlay')
+  };
+
+  // ===== MUTE BUTTON =====
+  const muteBtn = document.getElementById('muteBtn');
+  if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+      gameState.soundEnabled = !gameState.soundEnabled;
+      muteBtn.textContent = gameState.soundEnabled ? 'SOUND ON' : 'SOUND OFF';
+      if (gameState.soundEnabled) {
+        playButtonClick(); // Play click sound when enabling
+      }
+    });
+  }
+
+  // Add click sound to all buttons
+  document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      // Play dull sound for Next button, normal click for others
+      if (e.target.id === 'nextBtn' || e.target.id === 'nextWelcome') {
+        playNextClick();
+      }
+    }
+  });
+
+  // ===== SCREEN FLOW HANDLERS =====
+
+  /**
+   * Intro screen - Start button
+   */
+  document.getElementById('startBtn').addEventListener('click', () => {
+    playButtonClick();
+    stopIntroMusic(); // Stop music when leaving intro
+    showScreen('name');
+  });
+
+  // Start intro music when page loads
+  setTimeout(() => {
+    playIntroMusic();
+  }, 500);
+
+  /**
+   * Name input screen
+   */
+  document.getElementById('submitName').addEventListener('click', () => {
+    const nameInput = document.getElementById('playerName');
+    const val = nameInput.value.trim();
+    
+    if (val) {
+      gameState.playerName = val;
+      
+      loadingTransition('welcome', () => {
+        const welcomeMsg = '> SYSTEM BOOT INITIATED...\n> LOADING USER PROFILE...\n> USER: ' + gameState.playerName + '\n\n========================================\n\nWelcome ' + gameState.playerName + ', you have successfully booted FP-TeamLink 99.\n\nVoted "Most Likely to Teach Teams How to Function" in 1992!\n\nPrepare yourself for team growth, decisions, and lots of the colour green.\n\n========================================\n\n> Press NEXT to continue...';
+        
+        typeWriter(welcomeMsg, document.getElementById('welcomeText'));
+      });
+    }
+  });
+
+  /**
+   * Welcome screen - Next button
+   */
+  document.getElementById('nextWelcome').addEventListener('click', () => {
+    loadingTransition('terminal', () => {
+      const terminalIntroMsg = gameState.playerName + ', this is the team simulation terminal.  \n\nHere you will find your team\'s stats, which will be directly influenced by the decisions you make in this simulator.  \n\nIf you decide to give your team members unlimited days off for example, morale may soar!  \n\nAt the bottom of the screen are your navigation buttons: either a "Next" button or a "Decision" button.  \n\nPress "Next" to get a run down of your scenarios and goals.';
+      
+      typeWriter(terminalIntroMsg, elements.consoleText);
+    });
+  });
+
+  /**
+   * Terminal screen - Next button progression
+   */
+  function handleTerminalNext() {
+    // Prevent spam-clicking during typewriter animation
+    if (gameState.typingInProgress) {
+      return;
+    }
+
+    if (gameState.terminalStep === 0) {
+      // Step 1: Tuckman Model explanation
+      const tuckmanMsg = gameState.playerName + ', this simulator has been programmed using the Tuckman Model of team development.  \n\nThe Tuckman Model describes the stages teams move through to reach high performance:  \n\n1. Forming – when the team first comes together.  \n2. Storming – when challenges and disagreements emerge.  \n3. Norming – when understanding and cooperation begin to take shape.  \n4. Performing – when the team achieves high performance through trust and shared purpose.  \n\nThis simulator will guide you through scenarios where your choices will influence your team\'s stats and achievements.';
+      
+      typeWriter(tuckmanMsg, elements.consoleText);
+      gameState.terminalStep++;
+      
+    } else if (gameState.terminalStep === 1) {
+      // Step 2: Player goal & setup
+      const goalMsg = gameState.playerName + ', your goal is to increase your team\'s Morale, Trust, and Productivity.  \n\nBut it won\'t be easy – as a new leader, challenges will arise and every choice you make will affect your team.  \n\nThis simulator provides real-time dynamic feedback and overall scores for each section.  \n\nWhen you\'re ready, press "Next" to start Scenario 1.';
+      
+      typeWriter(goalMsg, elements.consoleText);
+      gameState.terminalStep++;
+      
+    } else if (gameState.terminalStep === 2) {
+      // Step 3: Scenario 1 introduction
+      const scenario1Intro = gameState.playerName + ', welcome to Scenario 1: Forming Stage.  \n\nYour team is brand new and everyone is getting to know each other. People are polite but unsure of their roles, and communication is cautious.  \n\nAs the new leader, your first interactions are crucial. Choose your responses carefully — overbearing or indecisive actions can create confusion, lower morale, and start mistrust early.  \n\nObserve team behavior carefully and decide how to guide them through this first stage.  \n\nPress "Next" to begin making your first decisions.';
+      
+      typeWriter(scenario1Intro, elements.consoleText);
+      gameState.terminalStep++;
+      
+    } else {
+      // Remove this listener before starting scenarios
+      elements.nextBtn.removeEventListener('click', handleTerminalNext);
+      // Start the actual scenarios
+      startScenario1();
+    }
+  }
+  
+  elements.nextBtn.addEventListener('click', handleTerminalNext);
+});
+</script>
+
+</body>
+</html>
